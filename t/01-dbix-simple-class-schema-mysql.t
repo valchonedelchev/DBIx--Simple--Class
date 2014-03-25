@@ -114,13 +114,15 @@ is($DSCS->_schemas('Your::Model')->{tables}[0]->{TABLE_NAME},
   'users', 'first table is "users"');
 is(scalar @{$DSCS->_schemas('Your::Model')->{tables}}, 1, 'the only table is "users"');
 SKIP: {
-  skip "I have only linux, see http://perldoc.perl.org/perlport.html#chmod", 1,
-    if $^O !~ /linux/i;
+  skip "I have only linux and mac, see http://perldoc.perl.org/perlport.html#chmod", 1,
+    if $^O !~ /linux|darwin/i;
   chmod 0444, $INC[0];
-  ok(!$DSCS->dump_schema_at(lib_root => $INC[0]), 'quits OK');
+  ok(!$DSCS->dump_schema_at(lib_root => $INC[0], overwrite => 1), 'quits OK');
   chmod 0755, $INC[0];
 }
 ok($DSCS->dump_schema_at(lib_root => $INC[0]), 'dumps OK');
+warn "Dump schema at - $INC[0]";
+
 File::Path::remove_tree($INC[0] . '/Your');
 $dbix->query('DROP TABLE IF EXISTS `groups`');
 $dbix->query('DROP TABLE IF EXISTS `users`');

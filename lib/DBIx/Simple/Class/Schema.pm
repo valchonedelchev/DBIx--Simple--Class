@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use 5.010001;
 use Carp;
-use Data::Dumper;
+use Data::Dump;
 use parent 'DBIx::Simple::Class';
 
 our $VERSION = '0.005';
@@ -112,7 +112,6 @@ sub _generate_COLUMNS_ALIASES_CHECKS {
   return $tables;
 }
 
-
 sub _generate_CODE {
   my ($class, $args) = @_;
   my $code      = '';
@@ -152,10 +151,9 @@ BASE_CLASS
   foreach my $t (@$tables) {
     my $package =
       $namespace . '::' . (join '', map { ucfirst lc } split /_/, $t->{TABLE_NAME});
-    my $COLUMNS = Data::Dumper->Dump([$t->{COLUMNS}],    ['$COLUMNS']);
-    my $ALIASES = Data::Dumper->Dump([$t->{ALIASES}],    ['$ALIASES']);
-    my $CHECKS  = Data::Dumper->Dump([$t->{CHECKS}],     ['$CHECKS']);
-    my $TABLE   = Data::Dumper->Dump([$t->{TABLE_NAME}], ['$TABLE_NAME']);
+    my $COLUMNS = Data::Dump::dump($t->{COLUMNS});
+    my $ALIASES = Data::Dump::dump($t->{ALIASES});
+    my $CHECKS  = Data::Dump::dump($t->{CHECKS});
     my $name_description =
       "A class for $t->{TABLE_TYPE} $t->{TABLE_NAME} in schema $t->{TABLE_SCHEM}";
     $schemas->{$namespace}{code}[0] .= qq|$/=item L<$package> - $name_description$/|;
@@ -166,16 +164,13 @@ use warnings;
 use utf8;
 use parent qw($namespace);
 | . qq|
-sub is_base_class{return 0}
-my $TABLE
-sub TABLE {return \$TABLE_NAME}| . qq|
-sub PRIMARY_KEY{return '$t->{PRIMARY_KEY}'}
-my $COLUMNS
-sub COLUMNS {return \$COLUMNS}
-my $ALIASES
-sub ALIASES {return \$ALIASES}
-my $CHECKS
-sub CHECKS {return \$CHECKS}
+
+sub is_base_class { return 0 }
+sub TABLE         { return '$t->{TABLE_NAME}' }| . qq|
+sub PRIMARY_KEY   { return '$t->{PRIMARY_KEY}' }
+sub COLUMNS       { return $COLUMNS }
+sub ALIASES       { return $ALIASES }
+sub CHECKS        { return $CHECKS }
 
 __PACKAGE__->QUOTE_IDENTIFIERS($t->{QUOTE_IDENTIFIERS});
 #__PACKAGE__->BUILD;#build accessors during load
