@@ -117,7 +117,7 @@ SKIP: {
   skip "I have only linux and mac, see http://perldoc.perl.org/perlport.html#chmod", 1,
     if $^O !~ /linux|darwin/i;
   chmod 0444, $INC[0];
-  ok(!$DSCS->dump_schema_at(lib_root => $INC[0], overwrite => 1), 'quits OK');
+  ok(!$DSCS->dump_schema_at(lib_root => $INC[0]), 'quits OK');
   chmod 0755, $INC[0];
 }
 ok($DSCS->dump_schema_at(lib_root => $INC[0]), 'dumps OK');
